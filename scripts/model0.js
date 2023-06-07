@@ -19,7 +19,7 @@
             if(Tick != CurTick)
             {
                 var delta=Math.sign(Tick-CurTick);
-                
+                //CurTick+=delta;
                 while(CurTick!=Tick)
                 {
                     ArrTicks[CurTick]=TimeStamp;
@@ -41,14 +41,14 @@
     }
 
      //test mode
-     this.getLogTickArr=function(from,count)
+     this.getLogTickArr=function(from,count,bAll)
      {
          var Str="";
          for(var i=0;i<count;i++)
          {
              if(Str)
                  Str+=",";
-             if(i<=CurTick)
+             if(bAll || i<=CurTick)
                  Str+=this.getTickInfo(from+i);
              else
                  Str+="!";
@@ -56,9 +56,9 @@
          
          return Str;
      }
-     this.logArr=function(from,count)
+     this.logArr=function(from,count,bAll)
      {
-         console.log("Arr0:  ",this.getLogTickArr(from,count));
+         console.log("Arr0:  ",this.getLogTickArr(from,count,bAll));
      }
  }
 

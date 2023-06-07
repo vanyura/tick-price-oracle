@@ -130,18 +130,15 @@
                                 return ArrTicks[TickNum];
                             }
                         }
-
-                        //console.log("Not found level 2 Tick=",Tick);
                     }
 
                     Numerator2=255;
                 }
-
-                //console.log("Not found level 1 Tick=",Tick);
             }
 
             Numerator1=255;
         }
+
         this.StatFindRead++;//ArrTicks
         return ArrTicks[0]
     }
