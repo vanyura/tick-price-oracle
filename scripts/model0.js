@@ -1,6 +1,7 @@
 ﻿function TickPriceOracle()
 {
-    var ArrTicks=new Uint32Array(1e6);
+    const MAX_TICKS=2**24;
+    var ArrTicks=new Uint32Array(MAX_TICKS);
     var TimeStamp=0;
     var CurTick=0;
     var WasInit;

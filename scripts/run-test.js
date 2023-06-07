@@ -3,29 +3,53 @@ const Model=require("./model.js").Model;
 
 function TestOne(Oracle)
 {
-    Oracle.setNewTick(3);
-    Oracle.setNewTick(5);
-    Oracle.setNewTick(15);
+    var Mult=27;
+    Oracle.setNewTick(0);
+    //Oracle.setNewTick(257);
+    //Oracle.setNewTick(259);
+    //Oracle.setNewTick(254);
+    //Oracle.setNewTick(259);
+
+    Oracle.setNewTick(235);
+    Oracle.setNewTick(512);
+    Oracle.setNewTick(517);
+
+    Oracle.setNewTick(5*Mult);
+    Oracle.setNewTick(11*Mult);
+    Oracle.setNewTick(15*Mult);
     
-    Oracle.setNewTick(10);
-    Oracle.setNewTick(14);
-    Oracle.setNewTick(17);
-    Oracle.setNewTick(17);
-    Oracle.setNewTick(2);
-
-    Oracle.logArr(0,20);
     
+    Oracle.setNewTick(10*Mult);
+    Oracle.setNewTick(14*Mult);
+    Oracle.setNewTick(17*Mult);
+    Oracle.setNewTick(17*Mult);
+    Oracle.setNewTick(11*Mult);
+    //Oracle.setNewTick(123000);
+    Oracle.setNewTick(11*Mult);
+    //Oracle.setNewTick(2*Mult);
+    //*/
 
-    //console.log("Info:",Oracle.getTickInfo(10));
+    Oracle.logArr(0,300);
+    //if(Oracle.logBitmap)        Oracle.logBitmap();
+
+    
+    //return console.log("Info:",Oracle.getTickInfo(514));
+    //return console.log("Info:",Oracle.getTickInfo(258));
 
 
-    return Oracle.getLogTickArr(0,20);
+    return Oracle.getLogTickArr(0,20*Mult);
+    //return Oracle.getLogTickArr(0,520);
 }
 
 function TestAll()
 {
-    var StrArr0=TestOne(new Model0());
-    var StrArr=TestOne(new Model());
+    var Oracle0=new Model0();
+    var Oracle=new Model();
+    var StrArr0=TestOne(Oracle0);
+    var StrArr=TestOne(Oracle);
+
+    if(Oracle.StatFind)
+        console.log("StatFind:",Oracle.StatFind, Oracle.StatFindRead, "Avg:",Oracle.StatFindRead/Oracle.StatFind);
 
     if(StrArr0!==StrArr)
     {
