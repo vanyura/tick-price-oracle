@@ -3,13 +3,17 @@ const Model=require("./model.js").Model;
 
 function TestOne(Oracle)
 {
-    var Mult=27;
+    /*
     Oracle.setNewTick(0);
-    //Oracle.setNewTick(257);
-    //Oracle.setNewTick(259);
-    //Oracle.setNewTick(254);
-    //Oracle.setNewTick(259);
+    Oracle.setNewTick(512+257);
+    Oracle.setNewTick(512+259);
+    Oracle.setNewTick(512+254-256);
+    Oracle.setNewTick(512+259);
+    return Oracle.getLogTickArr(0,1000);
+*/    
 
+    var Mult=27;
+    Oracle.setNewTick(1);
     Oracle.setNewTick(235);
     Oracle.setNewTick(512);
     Oracle.setNewTick(517);

@@ -107,7 +107,7 @@
 
         this.StatFind++;
         
-
+        
         //идем влево, ищем актуальный тик 
         this.StatFindRead++;//Bitmap0
         for(var i0=Numerator0; i0>=0; i0--)
@@ -124,6 +124,8 @@
                         {
                             if(Bitmap2[(i0<<8)+i1][i2])
                             {
+                                this.StatFindRead++;//ArrTicks
+
                                 var TickNum=(i0<<16) + (i1<<8) + i2;
                                 return ArrTicks[TickNum];
                             }
@@ -140,6 +142,7 @@
 
             Numerator1=255;
         }
+        this.StatFindRead++;//ArrTicks
         return ArrTicks[0]
     }
 
