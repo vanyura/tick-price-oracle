@@ -24,7 +24,7 @@ function TickPriceOracle()
 
             if(Tick != CurTick)
             {
-                var delta=Math.sign(Tick-CurTick);
+                var delta = Math.sign(Tick-CurTick);
                 //устанавливаем признаки изменения цены в тиках - бит 0
                 CurTick+=delta;
                 while(CurTick!=Tick)
@@ -44,7 +44,7 @@ function TickPriceOracle()
         if(Tick == CurTick)
             return ArrTicks[Tick];
 
-        var delta=+Math.sign(Tick-CurTick);
+        var delta = Math.sign(Tick-CurTick);
         var i=Tick;
         while(true)
         {

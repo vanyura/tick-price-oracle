@@ -7,9 +7,10 @@ function TestOne(Oracle)
     Oracle.setNewTick(5);
     //Oracle.setNewTick(20);
     Oracle.setNewTick(15);
-    Oracle.setNewTick(0);
+    //Oracle.setNewTick(0);
     Oracle.setNewTick(4);
     Oracle.setNewTick(8);
+    Oracle.setNewTick(16);
     Oracle.setNewTick(16);
     Oracle.setNewTick(10);
 
