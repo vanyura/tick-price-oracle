@@ -1,0 +1,17 @@
+node_modules
+123
+build*
+package-lock.json
+yarn.lock
+.env
+.vscode
+.idea
+/artifacts/
+/cache/
+
+#my
+*.bat
+bak
+Orion.code-workspace
+orion-pool-v3.code-workspace
+
