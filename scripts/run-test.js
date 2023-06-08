@@ -1,6 +1,6 @@
 const Model0=require("./model0.js").Model;
-const Model1=require("./model1.js").Model;
-const Model2=require("./model2.js").Model;
+//const Model1=require("./model1.js").Model;
+const Model3=require("./model3.js").Model;
 
 var nRand=0;
 global.InitRandom=function(set)
@@ -20,6 +20,8 @@ InitRandom();
 
 function TestOne(Oracle)
 {
+    var MaxNum=256**3;
+
     Oracle.setNewTick(5);
     //Oracle.setNewTick(20);
     Oracle.setNewTick(15);
@@ -32,52 +34,15 @@ function TestOne(Oracle)
 
     //console.log("Info:",Oracle.getTickInfo(10));
     Oracle.logArr(0,21, true);
-    return Oracle.getLogTickArr(0,21, true);
+    return Oracle.getLogTickArr(0,MaxNum);
 }
 
 function TestOne2(Oracle)
 {
-    /*
-    Oracle.setNewTick(2);
-    Oracle.setNewTick(5);
-    Oracle.setNewTick(3);
-    Oracle.setNewTick(6);
-    Oracle.setNewTick(10);
-    Oracle.setNewTick(7);
+    var MaxNum=256**3;
 
-    Oracle.logArr(0,21);
-    if(Oracle.logBitmap)        Oracle.logBitmap();
-    return "";
-    */
-
-
-    //Oracle.setNewTick(0);
-    Oracle.setNewTick(254);
-    Oracle.setNewTick(256);
-    Oracle.setNewTick(259);
-    Oracle.setNewTick(255);//-обнуляется бит 254
-
-    Oracle.logArr(250,20);
-    if(Oracle.logBitmap)
-    {
-        Oracle.logBitmap();
-        console.log("Info:",Oracle.getTickInfo(259+1));
-    }   
-
-    return Oracle.getLogTickArr(250,20);
-
-    /*
-    Oracle.setNewTick(0);
-    Oracle.setNewTick(512+257);
-    Oracle.setNewTick(512+259);
-    Oracle.setNewTick(511);
-    //Oracle.setNewTick(512+254-256);
-    Oracle.setNewTick(512+259);
-    return Oracle.getLogTickArr(0,1000);
-    /*/    
-
-    //var Mult=50;
-    var Mult=1;
+    var Mult=50;
+    
     Oracle.setNewTick(1);
     Oracle.setNewTick(235);
     Oracle.setNewTick(512);
@@ -93,29 +58,22 @@ function TestOne2(Oracle)
     Oracle.setNewTick(17*Mult);
     //Oracle.setNewTick(17*Mult);
     Oracle.setNewTick(11*Mult);
-    //Oracle.setNewTick(123000);
-    //Oracle.setNewTick(11*Mult);
-    //Oracle.setNewTick(2*Mult);
+    Oracle.setNewTick(123000);
+    Oracle.setNewTick(11*Mult);
+    Oracle.setNewTick(2*Mult);
     //*/
 
-    //Oracle.logArr(0,300);
-    Oracle.logArr(0,21);
-    //if(Oracle.logBitmap)        Oracle.logBitmap();
 
-    
-    //return console.log("Info:",Oracle.getTickInfo(514));
-    //return console.log("Info:",Oracle.getTickInfo(258));
+    Oracle.logArr(0,MaxNum);
 
+    return Oracle.getLogTickArr(0,MaxNum);
 
-    //return Oracle.getLogTickArr(0,20*Mult);
-    return Oracle.getLogTickArr(0,21);
 }
 
-function TestAll()
+function TestOracle()
 {
     var Oracle0=new Model0();
-    //var Oracle=new Model1();
-    var Oracle=new Model2();
+    var Oracle=new Model3();
 
     var StrArr0=TestOne2(Oracle0);
     var StrArr=TestOne2(Oracle);
@@ -240,6 +198,6 @@ function TestBitmapRandom()
 
 }
 
-//TestAll();
 //TestBitmap();
-TestBitmapRandom();
+//TestBitmapRandom();
+TestOracle();

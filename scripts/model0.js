@@ -43,6 +43,35 @@
      //test mode
      this.getLogTickArr=function(from,count)
      {
+        var Str="";
+        var PrevValue=-1;
+        var PrevCount=0;
+        for(var i=0;i<count;i++)
+        {
+            var Value=this.getTickInfo(from+i);
+            if(PrevValue === Value)
+            {
+                PrevCount++;
+            }
+            else
+            {
+                if(PrevCount>0)
+                    Str+=".."+PrevValue;
+
+                    Str = Str + (Str?","+Value:Value);
+                PrevCount=0;
+            }
+            PrevValue=Value;
+         }
+         
+         if(PrevCount>0)
+             Str+=".."+PrevValue;
+         
+         return Str;
+     }
+
+     this.getLogTickArr0=function(from,count)
+     {
          var Str="";
          for(var i=0;i<count;i++)
          {
@@ -53,6 +82,7 @@
          
          return Str;
      }
+
      this.logArr=function(from,count)
      {
          console.log("Arr0:  ",this.getLogTickArr(from,count));
