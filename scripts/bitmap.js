@@ -274,12 +274,12 @@ function BitmapLib(DebugMode)
             throw "Not in DebugMode";
         var Val1=this.findLeftTest(num);
         var Val2=this.findLeft(num);
-        if(Val2>num)
-            throw ("Error checkFindLeft on "+num+" got="+Val2+", need<"+num);
         if(Val1!==Val2)
         {
             throw ("Error checkFindLeft on "+num+" got="+Val2+", need="+Val1);
         }
+        if(Val2!=-1 && Val2>num)
+            throw ("Error checkFindLeft on "+num+" got="+Val2+", need<"+num);
     }
     this.checkFindRight= function(num)
     {
@@ -287,12 +287,12 @@ function BitmapLib(DebugMode)
             throw "Not in DebugMode";
         var Val1=this.findRightTest(num);
         var Val2=this.findRight(num);
-        if(Val2<num)
-            throw ("Error checkFindRight on "+num+" got="+Val2+", need>"+num);
         if(Val1!==Val2)
         {
             throw ("Error checkFindRight on "+num+" got="+Val2+", need="+Val1);
         }
+        if(Val2!=-1 && Val2<num)
+            throw ("Error checkFindRight on "+num+" got="+Val2+", need>"+num+"  Val1="+Val1);
     }
 
     this.checkBitmap=function(count)

@@ -173,6 +173,7 @@ function TestBitmapRandom()
 
     var Count=1e7;
     var MaxNum=256**3;
+    
 
     console.log("Test setBit 1");
     for(var i=0;i<Count;i++)
