@@ -23,9 +23,7 @@ function TestOne(Oracle)
     var MaxNum=256**3;
 
     Oracle.setNewTick(5);
-    //Oracle.setNewTick(20);
     Oracle.setNewTick(15);
-    //Oracle.setNewTick(0);
     Oracle.setNewTick(4);
     Oracle.setNewTick(8);
     Oracle.setNewTick(16);
@@ -33,7 +31,7 @@ function TestOne(Oracle)
     Oracle.setNewTick(10);
 
     //console.log("Info:",Oracle.getTickInfo(10));
-    Oracle.logArr(0,21, true);
+    Oracle.logArr(0,MaxNum, true);
     return Oracle.getLogTickArr(0,MaxNum);
 }
 
@@ -56,12 +54,12 @@ function TestOne2(Oracle)
     Oracle.setNewTick(10*Mult);
     Oracle.setNewTick(14*Mult);
     Oracle.setNewTick(17*Mult);
-    //Oracle.setNewTick(17*Mult);
+   
     Oracle.setNewTick(11*Mult);
     Oracle.setNewTick(123000);
     Oracle.setNewTick(11*Mult);
     Oracle.setNewTick(2*Mult);
-    //*/
+    
 
 
     Oracle.logArr(0,MaxNum);
@@ -70,13 +68,31 @@ function TestOne2(Oracle)
 
 }
 
+function TestOneRnd(Oracle)
+{
+    InitRandom();
+    var MaxNum=256**3;
+    var MaxRND=MaxNum;
+
+    var Count=1000;
+    console.log("Test Rnd");
+    for(var i=0;i<Count;i++)
+    {
+        var Num=Random(MaxRND);
+        Oracle.setNewTick(Num);
+    }
+
+    Oracle.logArr(0,MaxNum);
+    return Oracle.getLogTickArr(0,MaxNum);
+}
+
 function TestOracle()
 {
     var Oracle0=new Model0();
     var Oracle=new Model3();
 
-    var StrArr0=TestOne2(Oracle0);
-    var StrArr=TestOne2(Oracle);
+    var StrArr0=TestOneRnd(Oracle0);
+    var StrArr=TestOneRnd(Oracle);
 
     if(Oracle.StatFind)
         console.log("StatFind:",Oracle.StatFind, Oracle.StatFindRead, "Avg:",Oracle.StatFindRead/Oracle.StatFind);
@@ -88,6 +104,7 @@ function TestOracle()
         console.log("Model :",StrArr);
         //throw "Error model!";
     }
+    console.log("End");
     
 }
 
