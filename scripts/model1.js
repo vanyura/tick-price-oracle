@@ -1,6 +1,4 @@
-﻿
-//todo - првератить в двусторонний 
-function TickPriceOracle()
+﻿function TickPriceOracle()
 {
     var ArrTicks=new Uint32Array(1e6);
     var TimeStamp=0;

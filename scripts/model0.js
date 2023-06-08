@@ -41,24 +41,21 @@
     }
 
      //test mode
-     this.getLogTickArr=function(from,count,bAll)
+     this.getLogTickArr=function(from,count)
      {
          var Str="";
          for(var i=0;i<count;i++)
          {
              if(Str)
                  Str+=",";
-             if(bAll || i<=CurTick)
-                 Str+=this.getTickInfo(from+i);
-             else
-                 Str+="!";
+             Str+=this.getTickInfo(from+i);
          }
          
          return Str;
      }
-     this.logArr=function(from,count,bAll)
+     this.logArr=function(from,count)
      {
-         console.log("Arr0:  ",this.getLogTickArr(from,count,bAll));
+         console.log("Arr0:  ",this.getLogTickArr(from,count));
      }
  }
 

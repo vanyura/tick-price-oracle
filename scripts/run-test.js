@@ -2,6 +2,22 @@ const Model0=require("./model0.js").Model;
 const Model1=require("./model1.js").Model;
 const Model2=require("./model2.js").Model;
 
+var nRand=0;
+global.InitRandom=function(set)
+{
+    if(set===undefined)
+        set=123;
+    nRand=+set;
+}
+
+global.Random=function(max)
+{
+    nRand=(nRand*1664525+1013904223) >>> 0;
+    return nRand % max;
+}
+InitRandom();
+
+
 function TestOne(Oracle)
 {
     Oracle.setNewTick(5);
@@ -22,10 +38,40 @@ function TestOne(Oracle)
 function TestOne2(Oracle)
 {
     /*
+    Oracle.setNewTick(2);
+    Oracle.setNewTick(5);
+    Oracle.setNewTick(3);
+    Oracle.setNewTick(6);
+    Oracle.setNewTick(10);
+    Oracle.setNewTick(7);
+
+    Oracle.logArr(0,21);
+    if(Oracle.logBitmap)        Oracle.logBitmap();
+    return "";
+    */
+
+
+    //Oracle.setNewTick(0);
+    Oracle.setNewTick(254);
+    Oracle.setNewTick(256);
+    Oracle.setNewTick(259);
+    Oracle.setNewTick(255);//-обнуляется бит 254
+
+    Oracle.logArr(250,20);
+    if(Oracle.logBitmap)
+    {
+        Oracle.logBitmap();
+        console.log("Info:",Oracle.getTickInfo(259+1));
+    }   
+
+    return Oracle.getLogTickArr(250,20);
+
+    /*
     Oracle.setNewTick(0);
     Oracle.setNewTick(512+257);
     Oracle.setNewTick(512+259);
-    Oracle.setNewTick(512+254-256);
+    Oracle.setNewTick(511);
+    //Oracle.setNewTick(512+254-256);
     Oracle.setNewTick(512+259);
     return Oracle.getLogTickArr(0,1000);
     /*/    
@@ -68,11 +114,11 @@ function TestOne2(Oracle)
 function TestAll()
 {
     var Oracle0=new Model0();
-    //var Oracle=new Model2();
-    var Oracle=new Model1();
+    //var Oracle=new Model1();
+    var Oracle=new Model2();
 
-    var StrArr0=TestOne(Oracle0);
-    var StrArr=TestOne(Oracle);
+    var StrArr0=TestOne2(Oracle0);
+    var StrArr=TestOne2(Oracle);
 
     if(Oracle.StatFind)
         console.log("StatFind:",Oracle.StatFind, Oracle.StatFindRead, "Avg:",Oracle.StatFindRead/Oracle.StatFind);
@@ -87,5 +133,112 @@ function TestAll()
     
 }
 
+function TestBitmap()
+{
+    const BitmapLib=require("./bitmap.js").BitmapLib;
+    const Bitmap=new BitmapLib(1);
+    Bitmap.setBit(3);
 
-TestAll();
+
+    Bitmap.setBit(1);
+    Bitmap.setBit(7);
+
+
+    Bitmap.setBit(256);
+    Bitmap.setBit(256+1);
+    Bitmap.setBit(256*3);
+    Bitmap.setBit(256*3+1);
+
+    Bitmap.setBit(256*256);
+
+    Bitmap.clearRange(7+0,256*256);
+
+    Bitmap.setBit(256+4);
+
+    Bitmap.logBitmap();
+    Bitmap.checkBitmap(256**3);
+
+    Bitmap.checkFindLeft(3); 
+    console.log(Bitmap.findLeft(256));
+    console.log(Bitmap.findRight(256));
+    Bitmap.checkFindRight(256); 
+
+
+}
+
+function TestBitmapRandom()
+{
+    const BitmapLib=require("./bitmap.js").BitmapLib;
+    const Bitmap=new BitmapLib(1);
+
+    var Count=1e7;
+    var MaxNum=256**3;
+
+    console.log("Test setBit 1");
+    for(var i=0;i<Count;i++)
+    {
+        var Num=Random(MaxNum);
+        Bitmap.setBit(Num);
+    }
+    Bitmap.logBitmap(2);
+    Bitmap.checkBitmap(MaxNum);
+
+    Count=10000;
+    console.log("Test checkFindLeft 1");
+    for(var i=0;i<Count;i++)
+    {
+        var Num=Random(MaxNum);
+        Bitmap.checkFindLeft(Num);
+    }
+    console.log("Test checkFindRight 1");
+    for(var i=0;i<Count;i++)
+    {
+        var Num=Random(MaxNum);
+        Bitmap.checkFindRight(Num);
+    }
+
+    Count=1000;
+    console.log("Test clearRange");
+    for(var i=0;i<Count;i++)
+    {
+        var Num1=Random(MaxNum);
+        var Num2=Random(MaxNum);
+        Bitmap.clearRange(Num1<Num2?Num1:Num2,Num1<Num2?Num2:Num1);
+    }
+
+    //Bitmap.setBit(256*256);
+
+    Bitmap.logBitmap(2);
+    Bitmap.checkBitmap(MaxNum);
+
+
+    
+    console.log("Test setBit 2");
+    for(var i=0;i<Count;i++)
+    {
+        var Num=Random(MaxNum);
+        Bitmap.setBit(Num);
+    }
+    Bitmap.logBitmap(2);
+    Bitmap.checkBitmap(MaxNum);
+
+    console.log("Test checkFindLeft 2");
+    for(var i=0;i<Count;i++)
+    {
+        var Num=Random(MaxNum);
+        Bitmap.checkFindLeft(Num);
+    }
+    console.log("Test checkFindRight 2");
+    for(var i=0;i<Count;i++)
+    {
+        var Num=Random(MaxNum);
+        Bitmap.checkFindRight(Num);
+    }
+    
+    console.log("End");
+
+}
+
+//TestAll();
+//TestBitmap();
+TestBitmapRandom();

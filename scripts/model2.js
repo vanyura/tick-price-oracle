@@ -35,10 +35,13 @@
 
    
 
-    function setZeroBits(Bitmap, Tick)
+    function setZeroBits(Bitmap, from, to)
     {
-        //обнуляем все тики справа от Tick
-        for(var i=Tick+1;i<256;i++)
+        //var from=from0<to0?from0:to0;
+        //var to=from0<to0?to0:from0;
+
+        //обнуляем биты в диапазоне,но не включая концы отрезка
+        for(var i=from+1;i<to;i++)
         {
             Bitmap[i]=0;
         }
@@ -55,6 +58,12 @@
         var Numerator2 = Tick&0xFF;
         var NumBitmap2 = (Numerator0<<8)+Numerator1;
 
+        var CurNumerator0 = CurTick>>16;
+        var CurNumerator1 = (CurTick>>8)&0xFF;
+        var CurNumerator2 = CurTick&0xFF;
+        var CurNumBitmap2 = (CurNumerator0<<8)+CurNumerator1;
+        
+
         //console.log("Set:  ",Numerator0,Numerator1,Numerator2)
 
         if(!WasInit)
@@ -63,29 +72,24 @@
         }
         else
         {
+            ArrTicks[CurTick]=TimeStamp;//начало диапазона
+
+            //todo сделать очистку диапазона tick1 - tick2
+            
             if(Tick < CurTick)
             {
-                //идем влево
-
-                //обнуляем все тики справа
-                setZeroBits(Bitmap2[NumBitmap2],Numerator2);
-                setZeroBits(Bitmap1[Numerator0],Numerator1);
-                setZeroBits(Bitmap0,Numerator0);
+                //устанавливаем признаки изменения цены в тиках - бит 0
+                setZeroBits(Bitmap2[NumBitmap2], Numerator2, CurNumerator2);
+                setZeroBits(Bitmap1[Numerator0], Numerator1, CurNumerator1);
+                setZeroBits(Bitmap0,             Numerator0, CurNumerator0);
             }
             else
+            if(Tick > CurTick)
             {
-                //идем вправо
-                ArrTicks[CurTick]=TimeStamp;//начало диапазона
-
-                //если переход на новый bitmap, то берем нулевой
-                var WasNumBitmap2=Math.floor(CurTick/256);
-                var WasNumBitmap1=Math.floor(WasNumBitmap2/256);
-
-                if(WasNumBitmap2!=NumBitmap2)
-                    Bitmap2[NumBitmap2]=new Uint8Array(256);
-                if(WasNumBitmap1!=Numerator0)
-                    Bitmap1[Numerator0]=new Uint8Array(256);
-        
+                //устанавливаем признаки изменения цены в тиках - бит 0
+                setZeroBits(Bitmap2[NumBitmap2], CurNumerator2, Numerator2);
+                setZeroBits(Bitmap1[Numerator0], CurNumerator1, Numerator1);
+                setZeroBits(Bitmap0,             CurNumerator0, Numerator0);
             }
         }
         
@@ -100,6 +104,9 @@
 
     this.getTickInfo=function(Tick)
     {
+        if(Tick == CurTick)
+            return ArrTicks[Tick];
+
         var Numerator0 = Tick>>16;
         var Numerator1 = (Tick>>8)&0xFF;
         var Numerator2 = Tick&0xFF;
@@ -107,40 +114,80 @@
 
         this.StatFind++;
         
-        
-        //идем влево, ищем актуальный тик 
-        this.StatFindRead++;//Bitmap0
-        for(var i0=Numerator0; i0>=0; i0--)
+        if(Tick<CurTick)
         {
-            if(Bitmap0[i0])
+            //идем влево, ищем актуальный тик 
+            this.StatFindRead++;//Bitmap0
+            for(var i0=Numerator0; i0>=0; i0--)
             {
-                this.StatFindRead++;//Bitmap1
-                for(var i1=Numerator1; i1>=0; i1--)
+                if(Bitmap0[i0])
                 {
-                    if(Bitmap1[i0][i1])
+                    this.StatFindRead++;//Bitmap1
+                    for(var i1=Numerator1; i1>=0; i1--)
                     {
-                        this.StatFindRead++;//Bitmap2
-                        for(var i2=Numerator2; i2>=0; i2--)
+                        if(Bitmap1[i0][i1])
                         {
-                            if(Bitmap2[(i0<<8)+i1][i2])
+                            this.StatFindRead++;//Bitmap2
+                            for(var i2=Numerator2; i2>=0; i2--)
                             {
-                                this.StatFindRead++;//ArrTicks
+                                if(Bitmap2[(i0<<8)+i1][i2])
+                                {
+                                    this.StatFindRead++;//ArrTicks
 
-                                var TickNum=(i0<<16) + (i1<<8) + i2;
-                                return ArrTicks[TickNum];
+                                    var TickNum=(i0<<16) + (i1<<8) + i2;
+                                    return ArrTicks[TickNum];
+                                }
                             }
                         }
-                    }
 
-                    Numerator2=255;
+                        Numerator2=255;
+                    }
                 }
+
+                Numerator1=255;
             }
 
-            Numerator1=255;
+            this.StatFindRead++;//ArrTicks
+            return ArrTicks[0];
         }
+        else
+        {
+            //return "?"
+            //идем вправо, ищем актуальный тик 
+            this.StatFindRead++;//Bitmap0
+            for(var i0=Numerator0; i0<=255; i0++)
+            {
+                if(Bitmap0[i0])
+                {
+                    this.StatFindRead++;//Bitmap1
+                    for(var i1=Numerator1; i1<=255; i1++)
+                    {
+                        if(Bitmap1[i0][i1])
+                        {
+                            this.StatFindRead++;//Bitmap2
+                            for(var i2=Numerator2; i2<=255; i2++)
+                            {
+                                if(Bitmap2[(i0<<8)+i1][i2])
+                                {
+                                    this.StatFindRead++;//ArrTicks
 
-        this.StatFindRead++;//ArrTicks
-        return ArrTicks[0]
+                                    var TickNum=(i0<<16) + (i1<<8) + i2;
+                                    return ArrTicks[TickNum];
+                                }
+                            }
+                        }
+
+                        Numerator2=0;
+                    }
+                }
+
+                Numerator1=0;
+            }
+
+            this.StatFindRead++;//ArrTicks
+            return ArrTicks[MAX_TICKS-1];
+
+        }
     }
 
     this.getCurrentTick=function()
@@ -168,11 +215,7 @@
         {
             if(Str)
                 Str+=",";
-            if(i<=CurTick)
-                Str+=this.getTickInfo(from+i);
-            else
-                Str+="!";
-
+            Str+=this.getTickInfo(from+i);
         }
         
         return Str;
@@ -183,8 +226,9 @@
     }
     this.logBitmap=function(from,count)
     {
-        console.log("Bits2:",this.getStr(Bitmap2[0],250,6),this.getStr(Bitmap2[1],0,6),this.getStr(Bitmap2[2],0,10));
-        console.log("Bits1:",this.getStr(Bitmap1[0],0,6));
+        console.log("Bits2: ",this.getStr(Bitmap2[0],250,6),this.getStr(Bitmap2[1],0,6),this.getStr(Bitmap2[2],0,10));
+        console.log("Bits1: ",this.getStr(Bitmap1[0],0,6));
+        console.log("Bits0: ",this.getStr(Bitmap0,0,6));
     }
 }
 
