@@ -15,7 +15,7 @@ function TickPriceOracle()
     {
         TimeStamp++;
 
-        //устанавливаем признаки изменения цены в тиках - бит 0
+        //we set the signs of price changes in ticks, i.e. bit 0
         if(Tick < CurTick)
         {
             Bitmap.clearRange(Tick+1,CurTick-1);
@@ -27,8 +27,8 @@ function TickPriceOracle()
         }
 
         Bitmap.setBit(Tick);
-        ArrTicks[CurTick]=TimeStamp;//начало диапазона
-        ArrTicks[Tick]=TimeStamp;//конец диапазона
+        ArrTicks[CurTick]=TimeStamp;//beginning of the range
+        ArrTicks[Tick]=TimeStamp;//end of range
         CurTick=Tick;
     }
 
@@ -41,12 +41,12 @@ function TickPriceOracle()
         if(Tick<CurTick)
         {
             //идем влево, ищем актуальный тик 
-            find=Bitmap.findLeft(Tick);
+            find=Bitmap.findLower(Tick);
         }
         else
         {
             //идем вправо, ищем актуальный тик 
-            find=Bitmap.findRight(Tick);
+            find=Bitmap.findBigger(Tick);
         }
 
         if(find==-1)

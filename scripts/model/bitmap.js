@@ -66,6 +66,8 @@ function BitmapLib(DebugMode)
         {
             for(var i=BitFrom; i<=BitTo; i++)
             {
+                if(Bitmap[i]==0)
+                    continue;
                 if(i==BitFrom)
                 {
                     var _to;
@@ -108,12 +110,12 @@ function BitmapLib(DebugMode)
     function setBitArr(num, level,index, bZero)
     {
         var Bitmap=ArrBitmaps[level][index];
+        var BitNum = (num>>(level*8)) & 0xFF;
         if(bZero)
         {
             setZero(Bitmap);
         }
 
-        var BitNum = (num>>(level*8)) & 0xFF;
         
         if(level==0)
         {
@@ -131,7 +133,6 @@ function BitmapLib(DebugMode)
     function getBitArr(num, level,index)
     {
         var Bitmap=ArrBitmaps[level][index];
-
         var BitNum = (num>>(level*8)) & 0xFF;
         
         if(level==0)
@@ -149,7 +150,7 @@ function BitmapLib(DebugMode)
 
     //Find
 
-    function findLeftArr(num, level,index)
+    function findLowerArr(num, level,index)
     {
         var Bitmap=ArrBitmaps[level][index];
 
@@ -169,7 +170,7 @@ function BitmapLib(DebugMode)
             {
                 if(Bitmap[i])
                 {
-                    var find=findLeftArr(num, level-1,(index<<8)+i);
+                    var find=findLowerArr(num, level-1,(index<<8)+i);
                     if(find != -1)
                         return (i<<(level*8)) + find;
                 }
@@ -182,7 +183,7 @@ function BitmapLib(DebugMode)
     }
 
     
-    function findRightArr(num, level,index)
+    function findBiggerArr(num, level,index)
     {
         var Bitmap=ArrBitmaps[level][index];
 
@@ -202,7 +203,7 @@ function BitmapLib(DebugMode)
             {
                 if(Bitmap[i])
                 {
-                    var find=findRightArr(num, level-1,(index<<8)+i);
+                    var find=findBiggerArr(num, level-1,(index<<8)+i);
                     if(find != -1)
                         return (i<<(level*8)) + find;
                 }
@@ -240,18 +241,19 @@ function BitmapLib(DebugMode)
         return getBitArr(num,ROOT_LEVEL,0);
     }
 
-    this.findLeft = function(num)
+    this.findLower = function(num)
     {
-        return findLeftArr(num,ROOT_LEVEL,0);
+        
+        return findLowerArr(num,ROOT_LEVEL,0);
     }
 
-    this.findRight = function(num)
+    this.findBigger = function(num)
     {
-        return findRightArr(num,ROOT_LEVEL,0);
+        return findBiggerArr(num,ROOT_LEVEL,0);
     }
 
     //------------------------------------------------------------------------------------------- test mode
-    this.findLeftTest = function(num)
+    this.findLowerTest = function(num)
     {
         for(var i=num; i>=0; i--)
             if(testBitmap[i])
@@ -259,7 +261,7 @@ function BitmapLib(DebugMode)
 
         return -1;
     }
-    this.findRightTest = function(num)
+    this.findBiggerTest = function(num)
     {
         for(var i=num; i<=MAX_TICK; i++)
             if(testBitmap[i])
@@ -268,31 +270,31 @@ function BitmapLib(DebugMode)
         return -1;
     }
 
-    this.checkFindLeft = function(num)
+    this.checkfindLower = function(num)
     {
         if(!DebugMode)
             throw "Not in DebugMode";
-        var Val1=this.findLeftTest(num);
-        var Val2=this.findLeft(num);
+        var Val1=this.findLowerTest(num);
+        var Val2=this.findLower(num);
         if(Val1!==Val2)
         {
-            throw ("Error checkFindLeft on "+num+" got="+Val2+", need="+Val1);
+            throw ("Error checkfindLower on "+num+" got="+Val2+", need="+Val1);
         }
         if(Val2!=-1 && Val2>num)
-            throw ("Error checkFindLeft on "+num+" got="+Val2+", need<"+num);
+            throw ("Error checkfindLower on "+num+" got="+Val2+", need<"+num);
     }
-    this.checkFindRight= function(num)
+    this.checkfindBigger= function(num)
     {
         if(!DebugMode)
             throw "Not in DebugMode";
-        var Val1=this.findRightTest(num);
-        var Val2=this.findRight(num);
+        var Val1=this.findBiggerTest(num);
+        var Val2=this.findBigger(num);
         if(Val1!==Val2)
         {
-            throw ("Error checkFindRight on "+num+" got="+Val2+", need="+Val1);
+            throw ("Error checkfindBigger on "+num+" got="+Val2+", need="+Val1);
         }
         if(Val2!=-1 && Val2<num)
-            throw ("Error checkFindRight on "+num+" got="+Val2+", need>"+num+"  Val1="+Val1);
+            throw ("Error checkfindBigger on "+num+" got="+Val2+", need>"+num+"  Val1="+Val1);
     }
 
     this.checkBitmap=function(count)

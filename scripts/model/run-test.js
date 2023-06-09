@@ -20,9 +20,9 @@ InitRandom();
 
 function TestOne(Oracle)
 {
-    var MaxNum=256**3;
+    var MaxNum=1000;
 
-    Oracle.setNewTick(5);
+    Oracle.setNewTick(2);
     Oracle.setNewTick(15);
     Oracle.setNewTick(4);
     Oracle.setNewTick(8);
@@ -91,8 +91,8 @@ function TestOracle()
     var Oracle0=new Model0();
     var Oracle=new Model3();
 
-    var StrArr0=TestOneRnd(Oracle0);
-    var StrArr=TestOneRnd(Oracle);
+    var StrArr=TestOne(Oracle);
+    var StrArr0=TestOne(Oracle0);
 
     if(Oracle.StatFind)
         console.log("StatFind:",Oracle.StatFind, Oracle.StatFindRead, "Avg:",Oracle.StatFindRead/Oracle.StatFind);
@@ -133,10 +133,10 @@ function TestBitmap()
     Bitmap.logBitmap();
     Bitmap.checkBitmap(256**3);
 
-    Bitmap.checkFindLeft(3); 
-    console.log(Bitmap.findLeft(256));
-    console.log(Bitmap.findRight(256));
-    Bitmap.checkFindRight(256); 
+    Bitmap.checkfindLower(3); 
+    console.log(Bitmap.findLower(256));
+    console.log(Bitmap.findBigger(256));
+    Bitmap.checkfindBigger(256); 
 
 
 }
@@ -160,17 +160,17 @@ function TestBitmapRandom()
     Bitmap.checkBitmap(MaxNum);
 
     Count=10000;
-    console.log("Test checkFindLeft 1");
+    console.log("Test checkfindLower 1");
     for(var i=0;i<Count;i++)
     {
         var Num=Random(MaxNum);
-        Bitmap.checkFindLeft(Num);
+        Bitmap.checkfindLower(Num);
     }
-    console.log("Test checkFindRight 1");
+    console.log("Test checkfindBigger 1");
     for(var i=0;i<Count;i++)
     {
         var Num=Random(MaxNum);
-        Bitmap.checkFindRight(Num);
+        Bitmap.checkfindBigger(Num);
     }
 
     Count=1000;
@@ -198,17 +198,17 @@ function TestBitmapRandom()
     Bitmap.logBitmap(2);
     Bitmap.checkBitmap(MaxNum);
 
-    console.log("Test checkFindLeft 2");
+    console.log("Test checkfindLower 2");
     for(var i=0;i<Count;i++)
     {
         var Num=Random(MaxNum);
-        Bitmap.checkFindLeft(Num);
+        Bitmap.checkfindLower(Num);
     }
-    console.log("Test checkFindRight 2");
+    console.log("Test checkfindBigger 2");
     for(var i=0;i<Count;i++)
     {
         var Num=Random(MaxNum);
-        Bitmap.checkFindRight(Num);
+        Bitmap.checkfindBigger(Num);
     }
     
     console.log("End");
@@ -216,5 +216,5 @@ function TestBitmapRandom()
 }
 
 //TestBitmap();
-//TestBitmapRandom();
-TestOracle();
+TestBitmapRandom();
+//TestOracle();
