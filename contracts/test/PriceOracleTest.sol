@@ -7,21 +7,22 @@ import "../PriceOracle.sol";
 
 contract PriceOracleTest is PriceOracle
 {
+    using BitmapLib for mapping(uint256 => uint256);
 
     function clearRange2(uint24 from,uint24 to) external
     {
-        clearRange(from,to);
+        ArrBitmap.clearRange(from,to);
     }
 
 
     function setBit2(uint24 num) external
     {
-        setBit(num);
+        ArrBitmap.setBit(num);
     }
 
     function getBit2(uint24 num) external view returns(uint8)
     {
-        if(getBit(num)==0)
+        if(ArrBitmap.getBit(num)==0)
             return 0;
         else
             return 1;
@@ -30,11 +31,11 @@ contract PriceOracleTest is PriceOracle
 
     function findLower2(uint24 num) external view returns(int32)
     {
-        return findLower(num);
+        return ArrBitmap.findLower(num);
     }
     function findBigger2(uint24 num) external view returns(int32)
     {
-        return findBigger(num);
+        return ArrBitmap.findBigger(num);
     }
 
 
@@ -50,12 +51,11 @@ contract PriceOracleTest is PriceOracle
             {
                 uint32 index=uint32(from)+uint32(i);
 
-                if(getBit(uint24(index)) != 0)
+                if(ArrBitmap.getBit(uint24(index)) != 0)
                     arr[i] = 1;
             }
         }
     }
-
 
 }
 

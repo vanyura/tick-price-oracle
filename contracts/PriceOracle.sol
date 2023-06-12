@@ -6,11 +6,15 @@ import "./libraries/BitmapLib.sol";
 
 //import "hardhat/console.sol";
 
-contract PriceOracle is BitmapLib
+contract PriceOracle
 {
+    using BitmapLib for mapping(uint256 => uint256);
+
+
     int32 constant public MAX_TICK   = int24(type(uint24).max/2)-2 - 65536*12; //MAX_TICK=7602173
 
     mapping(uint256 => Arr8x32) ArrTicks;
+    mapping(uint256 => uint256) ArrBitmap;
 
     function setNewTick(int24 Tick, uint32 blockTimestamp) public
     {
@@ -18,26 +22,26 @@ contract PriceOracle is BitmapLib
         {
             uint24 TickNew = getAbsoluteTick(Tick);
 
-            uint24 CurTick=readTick();
+            uint24 CurTick=ArrBitmap.readTick();
 
             //uint32 blockTimestamp = uint32(block.timestamp % 2**32);
 
             //we set the signs of price changes in ticks, i.e. bit 0
             if(TickNew < CurTick)
             {
-                clearRange(TickNew+1,CurTick-1);
+                ArrBitmap.clearRange(TickNew+1,CurTick-1);
             }
             else
             if(TickNew > CurTick)
             {
-                clearRange(CurTick+1,TickNew-1);
+                ArrBitmap.clearRange(CurTick+1,TickNew-1);
             }
 
-            setBit(TickNew);
+            ArrBitmap.setBit(TickNew);
             
             TickLib.setPairAt8(ArrTicks, CurTick, TickNew, blockTimestamp);
 
-            writeTick(TickNew);
+            ArrBitmap.writeTick(TickNew);
         }
     }
 
@@ -55,7 +59,7 @@ contract PriceOracle is BitmapLib
             uint24 TickTo = getAbsoluteTick(To);
             uint24 TickNew = getAbsoluteTick(Tick);
 
-            uint24 CurTick=readTick();
+            uint24 CurTick=ArrBitmap.readTick();
 
             if(CurTick < TickFrom)
                 TickFrom = CurTick;
@@ -64,20 +68,20 @@ contract PriceOracle is BitmapLib
                 TickTo = CurTick;
 
             //we set the signs of price changes in ticks, i.e. bit 0
-            clearRange(TickFrom+1,TickTo-1);
+            ArrBitmap.clearRange(TickFrom+1,TickTo-1);
 
  
 
             
-            setBit(TickFrom);
-            setBit(TickTo);
+            ArrBitmap.setBit(TickFrom);
+            ArrBitmap.setBit(TickTo);
             if(TickNew!=TickFrom && TickNew!=TickTo)
-                setBit(TickNew);
+                ArrBitmap.setBit(TickNew);
             
             TickLib.setPairAt8(ArrTicks, TickFrom, TickNew, blockTimestamp);
             TickLib.setAt8(ArrTicks, TickTo, blockTimestamp);
 
-            writeTick(TickNew);
+            ArrBitmap.writeTick(TickNew);
         }
         
     }
@@ -98,7 +102,7 @@ contract PriceOracle is BitmapLib
         unchecked
         {
             uint24 TickNew = getAbsoluteTick(Tick);
-            uint24 CurTick=readTick();
+            uint24 CurTick = ArrBitmap.readTick();
 
 
             int32 find;
@@ -108,12 +112,12 @@ contract PriceOracle is BitmapLib
             if(TickNew<CurTick)
             {
                 //go left, look for the current tick
-                find=findLower(TickNew);
+                find=ArrBitmap.findLower(TickNew);
             }
             else
             {
                 //go right, look for the current tick 
-                find=findBigger(TickNew);
+                find=ArrBitmap.findBigger(TickNew);
             }
 
             if(find==-1)
@@ -126,8 +130,7 @@ contract PriceOracle is BitmapLib
 
     function getCurrentTick() external view returns(int24)
     {
-        uint24 CurTick=readTick();
+        uint24 CurTick=ArrBitmap.readTick();
         return int24(int32(uint32(CurTick)) - MAX_TICK);
     }
-
 }

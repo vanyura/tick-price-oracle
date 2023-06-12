@@ -6,62 +6,62 @@ import './BitMath.sol';
 
 import "hardhat/console.sol";
 
-contract BitmapLib
+library BitmapLib
 {
     uint8 constant  ROOT_LEVEL = 2;
     uint24 constant MAX_BITS   = type(uint24).max;
 
-    mapping(uint256 => uint256) ArrBitmap;
+    
 
-    function getBitmap(uint256 level, uint256 index) internal view returns(uint256 Value)
+    function getBitmap(mapping(uint256 => uint256) storage arrBitmap, uint256 level, uint256 index) internal view returns(uint256 Value)
     {
         unchecked
         {
-            Value=ArrBitmap[level*0x1000000 + index];
+            Value=arrBitmap[level*0x1000000 + index];
 
             if(level==ROOT_LEVEL)
                 Value = Value>>24;
         }
     }
 
-    function setBitmap(uint256 level, uint256 index, uint256 value) internal
+    function setBitmap(mapping(uint256 => uint256) storage arrBitmap, uint256 level, uint256 index, uint256 value) internal
     {
         unchecked
         {
             if(level==ROOT_LEVEL)
             {
-                uint256 WasCurrentTick = ArrBitmap[level*0x1000000] & 0xFFFFFF;
+                uint256 WasCurrentTick = arrBitmap[level*0x1000000] & 0xFFFFFF;
                 value = (value << 24) | WasCurrentTick;
             }
             
-            ArrBitmap[level*0x1000000 + index] = value;
+            arrBitmap[level*0x1000000 + index] = value;
         }
     }
 
-    function writeTick(uint24 tick) internal
+    function writeTick(mapping(uint256 => uint256) storage arrBitmap, uint24 tick) internal
     {
         unchecked
         {
-            uint256 WasSlotValue = ArrBitmap[ROOT_LEVEL*0x1000000];
+            uint256 WasSlotValue = arrBitmap[ROOT_LEVEL*0x1000000];
             WasSlotValue = (WasSlotValue>>24)<<24;
             
-            ArrBitmap[ROOT_LEVEL*0x1000000] = WasSlotValue | tick;
+            arrBitmap[ROOT_LEVEL*0x1000000] = WasSlotValue | tick;
         }
     }
-    function readTick() internal view returns(uint24 Value)
+    function readTick(mapping(uint256 => uint256) storage arrBitmap) internal view returns(uint24 Value)
     {
         unchecked
         {
-            return uint24(ArrBitmap[ROOT_LEVEL*0x1000000]);
+            return uint24(arrBitmap[ROOT_LEVEL*0x1000000]);
         }
     }
 
 
-    function clearRangeArr(uint256 from, uint256 to, uint256 level, uint256 index) internal returns(uint256)
+    function clearRangeArr(mapping(uint256 => uint256) storage arrBitmap, uint256 from, uint256 to, uint256 level, uint256 index) internal returns(uint256)
     {
         unchecked
         {
-            uint256 Bitmap=getBitmap(level,index);
+            uint256 Bitmap=getBitmap(arrBitmap,level,index);
             uint256 BitFrom = (from>>(level*8)) & 0xFF;
             uint256 BitTo   = (to>>(level*8)) & 0xFF;
 
@@ -95,7 +95,7 @@ contract BitmapLib
                             _to=MAX_BITS;
                         }
 
-                        if(clearRangeArr(from,_to, level-1, index*0x100+i) == 0)
+                        if(clearRangeArr(arrBitmap, from,_to, level-1, index*0x100+i) == 0)
                         {
                             Value = (Value | Maska) ^ Maska;
                         }
@@ -104,7 +104,7 @@ contract BitmapLib
                     if(i==BitTo)
                     {
                         //мы в конце отрезка, но разряды разные
-                        if(clearRangeArr(0,to, level-1, index*0x100+i) == 0)
+                        if(clearRangeArr(arrBitmap, 0,to, level-1, index*0x100+i) == 0)
                         {
                             Value = (Value | Maska) ^ Maska;
                         }
@@ -119,7 +119,7 @@ contract BitmapLib
             //save
             if(Value != Bitmap)
             {
-                setBitmap(level, index, Value);
+                setBitmap(arrBitmap, level, index, Value);
             }
 
             return Value;
@@ -127,7 +127,7 @@ contract BitmapLib
     }
 
 
-    function setBitArr(uint256 num, uint256 level, uint256 index, uint256 upperBit) internal
+    function setBitArr(mapping(uint256 => uint256) storage arrBitmap, uint256 num, uint256 level, uint256 index, uint256 upperBit) internal
     {
         unchecked
         {
@@ -137,28 +137,28 @@ contract BitmapLib
             uint256 Bitmap;
             if(upperBit != 0)
             {
-                Bitmap=getBitmap(level,index);
+                Bitmap=getBitmap(arrBitmap,level,index);
             }
             
             
             if(level>0)
             {
-                setBitArr(num, level-1, index*0x100+BitNum, Bitmap & Maska);
+                setBitArr(arrBitmap, num, level-1, index*0x100+BitNum, Bitmap & Maska);
             }
 
             uint256 Value=Bitmap | Maska;
             if(Value != Bitmap)
             {
-                setBitmap(level, index, Value);
+                setBitmap(arrBitmap, level, index, Value);
             }
         }
     }
     
-    function getBitArr(uint256 num, uint56 level, uint256 index) internal view returns (uint256)
+    function getBitArr(mapping(uint256 => uint256) storage arrBitmap, uint256 num, uint56 level, uint256 index) internal view returns (uint256)
     {
         unchecked
         {
-            uint256 Bitmap=getBitmap(level,index);
+            uint256 Bitmap=getBitmap(arrBitmap,level,index);
             uint56 BitNum = uint8((num>>(level*8)) & 0xFF);
             uint256 Flags = Bitmap & (1 << BitNum);
             
@@ -171,16 +171,16 @@ contract BitmapLib
                 if(Flags == 0)
                     return 0;
 
-                return getBitArr(num, level-1, index*0x100+BitNum);
+                return getBitArr(arrBitmap, num, level-1, index*0x100+BitNum);
             }
         }
     }
 
-    function findLowerArr(uint256 num, uint256 level, uint256 index) internal view returns (int32)
+    function findLowerArr(mapping(uint256 => uint256) storage arrBitmap, uint256 num, uint256 level, uint256 index) internal view returns (int32)
     {
         unchecked
         {
-            uint256 Bitmap=getBitmap(level,index);
+            uint256 Bitmap=getBitmap(arrBitmap,level,index);
             int16 BitNum = int16(uint16((num>>(level*8)) & 0xFF));
 
             if(level==0)
@@ -200,7 +200,7 @@ contract BitmapLib
                     uint256 Maska = 1 << uint256(i);
                     if(Bitmap & Maska != 0)
                     {
-                        int32 find=findLowerArr(num, level-1, index*0x100+uint256(i));
+                        int32 find=findLowerArr(arrBitmap, num, level-1, index*0x100+uint256(i));
                         if(find != -1)
                             return int32(uint32((uint256(i)<<(level*8))) + uint32(find));
                     }
@@ -213,11 +213,11 @@ contract BitmapLib
         }
     }
 
-    function findBiggerArr(uint256 num, uint256 level, uint256 index) internal view returns (int32)
+    function findBiggerArr(mapping(uint256 => uint256) storage arrBitmap, uint256 num, uint256 level, uint256 index) internal view returns (int32)
     {
         unchecked
         {
-            uint256 Bitmap=getBitmap(level,index);
+            uint256 Bitmap=getBitmap(arrBitmap,level,index);
             int16 BitNum = int16(uint16((num>>(level*8)) & 0xFF));
 
             if(level==0)
@@ -237,7 +237,7 @@ contract BitmapLib
                     uint256 Maska = 1 << uint256(i);
                     if(Bitmap & Maska != 0)
                     {
-                        int32 find=findBiggerArr(num, level-1, index*0x100+uint256(i));
+                        int32 find=findBiggerArr(arrBitmap, num, level-1, index*0x100+uint256(i));
                         if(find != -1)
                             return int32(uint32((uint256(i)<<(level*8))) + uint32(find));
                     }
@@ -253,29 +253,29 @@ contract BitmapLib
 
 
 
-    function clearRange(uint24 from,uint24 to) internal
+    function clearRange(mapping(uint256 => uint256) storage arrBitmap, uint24 from,uint24 to) internal
     {
-        clearRangeArr(from,to,ROOT_LEVEL,0);
+        clearRangeArr(arrBitmap, from,to,ROOT_LEVEL,0);
     }
 
-    function setBit(uint256 num) internal
+    function setBit(mapping(uint256 => uint256) storage arrBitmap, uint256 num) internal
     {
-        setBitArr(num,ROOT_LEVEL,0, 1);
+        setBitArr(arrBitmap, num,ROOT_LEVEL,0, 1);
     }
 
-    function getBit(uint24 num) internal view returns(uint256)
+    function getBit(mapping(uint256 => uint256) storage arrBitmap, uint24 num) internal view returns(uint256)
     {
-        return getBitArr(num,ROOT_LEVEL,0);
+        return getBitArr(arrBitmap, num,ROOT_LEVEL,0);
     }
 
-    function findLower(uint24 num) internal view returns(int32)
+    function findLower(mapping(uint256 => uint256) storage arrBitmap, uint24 num) internal view returns(int32)
     {
-        return findLowerArr(num,ROOT_LEVEL,0);
+        return findLowerArr(arrBitmap, num,ROOT_LEVEL,0);
     }
 
-    function findBigger(uint24 num) internal view returns(int32)
+    function findBigger(mapping(uint256 => uint256) storage arrBitmap, uint24 num) internal view returns(int32)
     {
-        return findBiggerArr(num,ROOT_LEVEL,0);
+        return findBiggerArr(arrBitmap, num,ROOT_LEVEL,0);
     }
     
 
