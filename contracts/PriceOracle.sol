@@ -37,12 +37,13 @@ contract PriceOracle is BitmapLib
                 clearRange(CurTick+1,Tick-1);
             }
 
-            //todo 12K газа
+            //todo 9.2K газа
             setBit(Tick);
             //todo - возможна экономия 600 газа
             TickLib.setAt8(ArrTicks, CurTick,blockTimestamp);//beginning of the range
             TickLib.setAt8(ArrTicks, Tick,blockTimestamp);//end of range
             CurTick=Tick;
+            
             }
     }
 

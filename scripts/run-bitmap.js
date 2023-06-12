@@ -8,8 +8,8 @@ const {GasCost,ListGasCost} = require("./shared/gas-cost.js");
 
 async function main()
 {
-  await RunGasBitmap();
-  //await RunTestBitmap();
+  //await RunGasBitmap();
+  await RunTestBitmap();
 }
 
 
@@ -26,7 +26,7 @@ async function RunGasBitmap()
   await Oracle.setBit2(15e6);
   await Oracle.setBit2(16777215);
   
-  //console.log(+await Oracle.findLower2(15e6+2000));
+  console.log(+await Oracle.findLower2(15e6+2000));
   console.log(await Oracle.findBigger2(15e6+1));
   console.log(await Oracle.findBigger2(10));
   return;
@@ -41,13 +41,39 @@ async function RunGasBitmap()
     var Num=i*Mult;
     GasCost("setBit",await Oracle.setBit2(Num));
 
-    var Val=await Oracle.findLower2(Num);
+    //var Val=await Oracle.findLower2(Num);
+    //var Val=await Oracle.findBigger2(Num);
+    var Val=await Oracle.getBit2(Num);
     console.log(Num,Val)
-
   }
-  //setBit (10) [90172, 32872, 32872, 32872, 32872, 32872, 32872, 32872, 32872, 32872]
+  var Val=await Oracle.getBit2(i);
+  console.log(Num,Val)
+
 
   await ListGasCost();
+  //setBit (10) [90172, 32872, 32872, 32872, 32872, 32872, 32872, 32872, 32872, 32872]
+  //setBit (10) [90169, 32869, 32869, 32869, 32869, 32869, 32869, 32869, 32869, 32869]
+  //setBit (10) [90169, 32869, 32869, 32869, 32869, 32869, 32869, 32869, 32869, 32869]
+
+  //setBit (10) [90629, 33329, 33329, 33329, 33329, 33329, 33329, 33329, 33329, 33329]
+  //setBit (10) [89927, 32627, 32627, 32627, 32627, 32627, 32627, 32627, 32627, 32627]
+  //setBit (10) [89987, 33081, 33081, 33081, 33081, 33081, 33081, 33081, 33081, 33081]
+
+  //setBit (10) [89956, 32546, 32546, 32546, 32546, 32546, 32546, 32546, 32546, 32546]
+  //setBit (10) [90055, 32645, 32645, 32645, 32645, 32645, 32645, 32645, 32645, 32645]
+
+  //setBit (10) [89966, 32556, 32556, 32556, 32556, 32556, 32556, 32556, 32556, 32556]
+  //setBit (10) [89483, 32073, 32073, 32073, 32073, 32073, 32073, 32073, 32073, 32073]
+  //setBit (10) [89076, 31764, 31764, 31764, 31764, 31764, 31764, 31764, 31764, 31764]
+  //setBit (10) [88824, 31728, 31728, 31728, 31728, 31728, 31728, 31728, 31728, 31728]
+
+  //setBit (10) [88824, 31728, 31728, 31728, 31728, 31728, 31728, 31728, 31728, 31728]
+  //setBit (10) [28710, 28722, 28722, 28722, 28722, 28722, 28722, 28722, 28722, 28722] - без установки бит
+  //setBit (10) [24210, 24222, 24222, 24222, 24222, 24222, 24222, 24222, 24222, 24222] - без установки бит и чтения
+  //setBit (10) [21473, 21485, 21485, 21485, 21485, 21485, 21485, 21485, 21485, 21485] - пустой метод
+
+  //setBit (10) [88737, 31641, 31641, 31641, 31641, 31641, 31641, 31641, 31641, 31641] - почти все значения uint256
+  //setBit (10) [88725, 31629, 31629, 31629, 31629, 31629, 31629, 31629, 31629, 31629] - все значения uint256
 
   return;
 
