@@ -216,5 +216,5 @@ function TestBitmapRandom()
 }
 
 //TestBitmap();
-TestBitmapRandom();
-//TestOracle();
+//TestBitmapRandom();
+TestOracle();

@@ -8,8 +8,8 @@ const {GasCost,ListGasCost} = require("./shared/gas-cost.js");
 
 async function main()
 {
-  //await RunGasBitmap();
-  await RunTestBitmap();
+  await RunGasBitmap();
+  //await RunTestBitmap();
 }
 
 
@@ -18,14 +18,16 @@ async function RunGasBitmap()
   console.log("------------------------------RunGasBitmap");
   var Oracle=await DeploySmart("PriceOracleTest");
 
-  //*
+  /*
   await Oracle.setBit2(10);
   //await Oracle.setBit2(15);
   //await Oracle.setBit2(12);
   await Oracle.setBit2(35);
-  await Oracle.setBit2(15000000);
-  //console.log(+await Oracle.findLower2(15000000+2000));
-  console.log(await Oracle.findBigger2(35000));
+  await Oracle.setBit2(15e6);
+  await Oracle.setBit2(16777215);
+  
+  //console.log(+await Oracle.findLower2(15e6+2000));
+  console.log(await Oracle.findBigger2(15e6+1));
   console.log(await Oracle.findBigger2(10));
   return;
   //*/
@@ -33,7 +35,7 @@ async function RunGasBitmap()
   //return await Oracle.clearRange2(2,254);
   
 
-  var Mult=2;
+  var Mult=1;
   for(var i=0;i<10;i++)
   {
     var Num=i*Mult;
@@ -43,7 +45,12 @@ async function RunGasBitmap()
     console.log(Num,Val)
 
   }
+  //setBit (10) [90172, 32872, 32872, 32872, 32872, 32872, 32872, 32872, 32872, 32872]
+
   await ListGasCost();
+
+  return;
+
   for(var i=0;i<5;i++)
   {
     var Num=i*2*Mult;
