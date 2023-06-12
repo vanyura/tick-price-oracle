@@ -4,7 +4,7 @@ pragma solidity ^0.8.7;
 import './BitMath.sol';
 
 
-import "hardhat/console.sol";
+//import "hardhat/console.sol";
 
 library BitmapLib
 {

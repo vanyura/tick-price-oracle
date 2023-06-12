@@ -16,7 +16,9 @@ contract PriceOracle
     mapping(uint256 => Arr8x32) ArrTicks;
     mapping(uint256 => uint256) ArrBitmap;
 
-    function setNewTick(int24 Tick, uint32 blockTimestamp) public
+    //external
+
+    function setNewTick(int24 Tick, uint32 blockTimestamp) external
     {
         unchecked
         {
@@ -51,8 +53,8 @@ contract PriceOracle
         unchecked
         {
             require(From <= To,"Error tick range numbers");
-            require(From <= Tick,"Error new tick number #1");
-            require(To >= Tick,"Error new tick number #2");
+            require(From <= Tick,"Error new tick number: From > Tick");
+            require(To >= Tick,"Error new tick number: To < Tick");
             
 
             uint24 TickFrom = getAbsoluteTick(From);
@@ -85,17 +87,6 @@ contract PriceOracle
         }
         
     }
-
-    function getAbsoluteTick(int24 Tick) pure internal returns(uint24)
-    {
-        unchecked
-        {
-            require(Tick >= -MAX_TICK,"Error MIN tick number");
-            require(Tick <=  MAX_TICK,"Error MAX tick number");
-            return uint24(uint32(int32(Tick) + MAX_TICK));
-        }
-    }
-
 
     function getTickInfo(int24 Tick)external view returns(uint32)
     {
@@ -133,4 +124,18 @@ contract PriceOracle
         uint24 CurTick=ArrBitmap.readTick();
         return int24(int32(uint32(CurTick)) - MAX_TICK);
     }
+
+
+    //internal
+
+    function getAbsoluteTick(int24 Tick) pure internal returns(uint24)
+    {
+        unchecked
+        {
+            require(Tick >= -MAX_TICK,"Error MIN tick number");
+            require(Tick <=  MAX_TICK,"Error MAX tick number");
+            return uint24(uint32(int32(Tick) + MAX_TICK));
+        }
+    }
+
 }
