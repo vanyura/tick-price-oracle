@@ -8,13 +8,13 @@ import "./libraries/BitmapLib.sol";
 
 contract PriceOracle is BitmapLib
 {
-    int32 constant public MAX_TICK   = int24(type(uint24).max/2)-2;
+    int32 constant public MAX_TICK   = int24(type(uint24).max/2)-2 - 65536*12; //MAX_TICK=7602173
 
     mapping(uint256 => Arr8x32) ArrTicks;
-    uint24 CurTick;
-    uint32 blockTimestamp;
+    //uint24 CurTick;
+    //uint32 blockTimestamp;
 
-    function setNewTick(int24 Tick0)external
+    function setNewTick(int24 Tick0, uint32 blockTimestamp) external
     {
         unchecked
         {
@@ -22,29 +22,34 @@ contract PriceOracle is BitmapLib
             require(Tick0 <=  MAX_TICK,"Error MAX tick number");
             uint24 Tick = uint24(uint32(int32(Tick0) + MAX_TICK));
 
+            //uint24 _CurTick=CurTick;//safe gas
+            uint24 _CurTick=readTick();
+
             //uint32 blockTimestamp = uint32(block.timestamp % 2**32);
-            blockTimestamp++;
+            //blockTimestamp++;
 
             //we set the signs of price changes in ticks, i.e. bit 0
-            if(Tick < CurTick)
+            if(Tick < _CurTick)
             {
-                clearRange(Tick+1,CurTick-1);
+                clearRange(Tick+1,_CurTick-1);
             }
             else
-            if(Tick > CurTick)
+            if(Tick > _CurTick)
             {
                 //todo 4K газа
-                clearRange(CurTick+1,Tick-1);
+                clearRange(_CurTick+1,Tick-1);
             }
 
             //todo 9.2K газа
             setBit(Tick);
-            //todo - возможна экономия 600 газа
-            TickLib.setAt8(ArrTicks, CurTick,blockTimestamp);//beginning of the range
-            TickLib.setAt8(ArrTicks, Tick,blockTimestamp);//end of range
-            CurTick=Tick;
             
-            }
+            TickLib.setPairAt8(ArrTicks, _CurTick, Tick, blockTimestamp);
+            //TickLib.setAt8(ArrTicks, _CurTick,blockTimestamp);//beginning of the range
+            //TickLib.setAt8(ArrTicks, Tick,blockTimestamp);//end of range
+
+            //CurTick=Tick;
+            writeTick(Tick);
+        }
     }
 
     function getTickInfo(int24 Tick0)external view returns(uint32)
@@ -55,13 +60,14 @@ contract PriceOracle is BitmapLib
             require(Tick0 <=  MAX_TICK,"Error MAX tick number");
             uint24 Tick = uint24(uint32(int32(Tick0) + MAX_TICK));
 
+            uint24 _CurTick=readTick();
 
-            //return TickLib.getAt8(ArrTicks, Tick);
+
             int32 find;
-            if(Tick == CurTick)
+            if(Tick == _CurTick)
                 find=int32(uint32(Tick));
             else
-            if(Tick<CurTick)
+            if(Tick<_CurTick)
             {
                 //go left, look for the current tick
                 find=findLower(Tick);
@@ -82,8 +88,8 @@ contract PriceOracle is BitmapLib
 
     function getCurrentTick() external view returns(int24)
     {
-        return int24(int32(uint32(CurTick)) - MAX_TICK);
+        uint24 _CurTick=readTick();
+        return int24(int32(uint32(_CurTick)) - MAX_TICK);
     }
-
 
 }

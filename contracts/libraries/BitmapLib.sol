@@ -13,18 +13,46 @@ contract BitmapLib
 
     mapping(uint256 => uint256) ArrBitmap;
 
-    function getBitmap(uint256 level, uint256 index) internal view returns(uint256)
+    function getBitmap(uint256 level, uint256 index) internal view returns(uint256 Value)
     {
         unchecked
         {
-            return ArrBitmap[level*0x1000000 + index];
+            Value=ArrBitmap[level*0x1000000 + index];
+
+            if(level==ROOT_LEVEL)
+                Value = Value>>24;
         }
     }
+
     function setBitmap(uint256 level, uint256 index, uint256 value) internal
     {
         unchecked
         {
+            if(level==ROOT_LEVEL)
+            {
+                uint256 WasCurrentTick = ArrBitmap[level*0x1000000] & 0xFFFFFF;
+                value = (value << 24) | WasCurrentTick;
+            }
+            
             ArrBitmap[level*0x1000000 + index] = value;
+        }
+    }
+
+    function writeTick(uint24 tick) internal
+    {
+        unchecked
+        {
+            uint256 WasSlotValue = ArrBitmap[ROOT_LEVEL*0x1000000];
+            WasSlotValue = (WasSlotValue>>24)<<24;
+            
+            ArrBitmap[ROOT_LEVEL*0x1000000] = WasSlotValue | tick;
+        }
+    }
+    function readTick() internal view returns(uint24 Value)
+    {
+        unchecked
+        {
+            return uint24(ArrBitmap[ROOT_LEVEL*0x1000000]);
         }
     }
 

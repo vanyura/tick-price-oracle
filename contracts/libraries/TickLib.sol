@@ -45,5 +45,35 @@ library TickLib
             self[posNum].arr[posBit]=value;
         }
     }
+
+
+    function setPairAt8(
+        mapping(uint256 => Arr8x32) storage self,
+        uint256 index1,
+        uint256 index2,
+        uint32 value
+    ) internal
+    {
+        unchecked
+        {
+            uint256 posNum1=index1>>3;
+            uint256 posNum2=index2>>3;
+            uint256 posBit1=index1%8;
+            uint256 posBit2=index2%8;
+            
+            if(posNum1==posNum2)
+            {
+                Arr8x32 storage Slot=self[posNum1];
+                Slot.arr[posBit1]=value;
+                Slot.arr[posBit2]=value;
+            }
+            else
+            {
+                self[posNum1].arr[posBit1]=value;
+                self[posNum2].arr[posBit2]=value;
+            }
+        }
+    }
 }
+
 
