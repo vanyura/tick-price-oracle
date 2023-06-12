@@ -11,71 +11,109 @@ contract PriceOracle is BitmapLib
     int32 constant public MAX_TICK   = int24(type(uint24).max/2)-2 - 65536*12; //MAX_TICK=7602173
 
     mapping(uint256 => Arr8x32) ArrTicks;
-    //uint24 CurTick;
-    //uint32 blockTimestamp;
 
-    function setNewTick(int24 Tick0, uint32 blockTimestamp) external
+    function setNewTick(int24 Tick, uint32 blockTimestamp) public
     {
         unchecked
         {
-            require(Tick0 >= -MAX_TICK,"Error MIN tick number");
-            require(Tick0 <=  MAX_TICK,"Error MAX tick number");
-            uint24 Tick = uint24(uint32(int32(Tick0) + MAX_TICK));
+            uint24 TickNew = getAbsoluteTick(Tick);
 
-            //uint24 _CurTick=CurTick;//safe gas
-            uint24 _CurTick=readTick();
+            uint24 CurTick=readTick();
 
             //uint32 blockTimestamp = uint32(block.timestamp % 2**32);
-            //blockTimestamp++;
 
             //we set the signs of price changes in ticks, i.e. bit 0
-            if(Tick < _CurTick)
+            if(TickNew < CurTick)
             {
-                clearRange(Tick+1,_CurTick-1);
+                clearRange(TickNew+1,CurTick-1);
             }
             else
-            if(Tick > _CurTick)
+            if(TickNew > CurTick)
             {
-                //todo 4K газа
-                clearRange(_CurTick+1,Tick-1);
+                clearRange(CurTick+1,TickNew-1);
             }
 
-            //todo 9.2K газа
-            setBit(Tick);
+            setBit(TickNew);
             
-            TickLib.setPairAt8(ArrTicks, _CurTick, Tick, blockTimestamp);
-            //TickLib.setAt8(ArrTicks, _CurTick,blockTimestamp);//beginning of the range
-            //TickLib.setAt8(ArrTicks, Tick,blockTimestamp);//end of range
+            TickLib.setPairAt8(ArrTicks, CurTick, TickNew, blockTimestamp);
 
-            //CurTick=Tick;
-            writeTick(Tick);
+            writeTick(TickNew);
         }
     }
 
-    function getTickInfo(int24 Tick0)external view returns(uint32)
+    function setRangeTick(int24 From, int24 To, int24 Tick, uint32 blockTimestamp) external
+    {
+
+        unchecked
+        {
+            require(From <= To,"Error tick range numbers");
+            require(From <= Tick,"Error new tick number #1");
+            require(To >= Tick,"Error new tick number #2");
+            
+
+            uint24 TickFrom = getAbsoluteTick(From);
+            uint24 TickTo = getAbsoluteTick(To);
+            uint24 TickNew = getAbsoluteTick(Tick);
+
+            uint24 CurTick=readTick();
+
+            if(CurTick < TickFrom)
+                TickFrom = CurTick;
+            else
+            if(CurTick > TickTo)
+                TickTo = CurTick;
+
+            //we set the signs of price changes in ticks, i.e. bit 0
+            clearRange(TickFrom+1,TickTo-1);
+
+ 
+
+            
+            setBit(TickFrom);
+            setBit(TickTo);
+            if(TickNew!=TickFrom && TickNew!=TickTo)
+                setBit(TickNew);
+            
+            TickLib.setPairAt8(ArrTicks, TickFrom, TickNew, blockTimestamp);
+            TickLib.setAt8(ArrTicks, TickTo, blockTimestamp);
+
+            writeTick(TickNew);
+        }
+        
+    }
+
+    function getAbsoluteTick(int24 Tick) pure internal returns(uint24)
     {
         unchecked
         {
-            require(Tick0 >= -MAX_TICK,"Error MIN tick number");
-            require(Tick0 <=  MAX_TICK,"Error MAX tick number");
-            uint24 Tick = uint24(uint32(int32(Tick0) + MAX_TICK));
+            require(Tick >= -MAX_TICK,"Error MIN tick number");
+            require(Tick <=  MAX_TICK,"Error MAX tick number");
+            return uint24(uint32(int32(Tick) + MAX_TICK));
+        }
+    }
 
-            uint24 _CurTick=readTick();
+
+    function getTickInfo(int24 Tick)external view returns(uint32)
+    {
+        unchecked
+        {
+            uint24 TickNew = getAbsoluteTick(Tick);
+            uint24 CurTick=readTick();
 
 
             int32 find;
-            if(Tick == _CurTick)
-                find=int32(uint32(Tick));
+            if(TickNew == CurTick)
+                find=int32(uint32(TickNew));
             else
-            if(Tick<_CurTick)
+            if(TickNew<CurTick)
             {
                 //go left, look for the current tick
-                find=findLower(Tick);
+                find=findLower(TickNew);
             }
             else
             {
                 //go right, look for the current tick 
-                find=findBigger(Tick);
+                find=findBigger(TickNew);
             }
 
             if(find==-1)
@@ -88,8 +126,8 @@ contract PriceOracle is BitmapLib
 
     function getCurrentTick() external view returns(int24)
     {
-        uint24 _CurTick=readTick();
-        return int24(int32(uint32(_CurTick)) - MAX_TICK);
+        uint24 CurTick=readTick();
+        return int24(int32(uint32(CurTick)) - MAX_TICK);
     }
 
 }

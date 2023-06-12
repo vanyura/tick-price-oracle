@@ -31,17 +31,30 @@ async function RunTestOracle()
     for(var i=0;i<8;i++)
     {
         var Num=i*Mult+Delta;
-        GasCost("setNewTick",await Oracle.setNewTick(Num, ++TimeStamp));
+        ++TimeStamp;
+        //console.log(Num,":",TimeStamp);
+        GasCost("setNewTick",await Oracle.setNewTick(Num, TimeStamp));
     }
+
+    var Num=Delta;
+    //GasCost("setRangeTick",await Oracle.setRangeTick(Num-5,Num+5,Num, ++TimeStamp));
+    //GasCost("setRangeTick",await Oracle.setRangeTick(Num-4,Num+4,Num, ++TimeStamp));
+    //GasCost("setRangeTick",await Oracle.setRangeTick(Num-3,Num+3,Num, ++TimeStamp));
+
+    console.log("Current:",await Oracle.getCurrentTick());
+    GasCost("setRangeTick",await Oracle.setRangeTick(8,12,10, ++TimeStamp));
+    GasCost("setRangeTick",await Oracle.setRangeTick(9,11,10, ++TimeStamp));
+    GasCost("setRangeTick",await Oracle.setRangeTick(10,12,11, ++TimeStamp));
+
     await ListGasCost();
 
     console.log("Current:",await Oracle.getCurrentTick());
 
-    for(var i=0;i<=10;i++)
+    for(var i=0;i<=9;i++)
     {
         var Num=i*Mult+Delta;
         if(Num<=MAX_TICK)
-            console.log(await Oracle.getTickInfo(Num));
+            console.log(Num,":",await Oracle.getTickInfo(Num));
     }
     
     
@@ -59,7 +72,10 @@ async function RunTestOracle()
 
     //CurTick в RootBitmap
     //setNewTick (8) [40226, 45185, 45235, 45235, 45235, 45235, 45235, 45235]
-    //setNewTick (8) [35342, 43098, 43148, 43148, 43148, 43148, 43148, 43148]
+    //setNewTick (8) [35414, 43170, 43220, 43220, 43220, 43220, 43220, 43220]
+    //setRangeTick (3) [67077, 50174, 49745]
+
+
 }
 
 
